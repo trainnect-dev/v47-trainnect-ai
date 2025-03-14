@@ -99,7 +99,7 @@ export function Chat() {
             <div>Trainnect AI.</div>
           </div>
           <div className="dark:text-zinc-500 text-zinc-400">
-            What would you to accomplish today?
+            Search Less, Learn More
           </div>
         </div>
       )}
