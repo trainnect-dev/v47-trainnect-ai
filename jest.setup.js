@@ -18,23 +18,6 @@ console.warn = (...args) => {
   global.lastConsoleWarn = args;
 };
 
-// Mock environment variables for PostHog
-process.env.NEXT_PUBLIC_POSTHOG_KEY = 'test-posthog-key';
-process.env.NEXT_PUBLIC_POSTHOG_HOST = 'https://test.posthog.com';
-
-// Mock window.location for PostHog
-if (typeof window !== 'undefined') {
-  Object.defineProperty(window, 'location', {
-    value: {
-      origin: 'http://localhost:3000',
-      pathname: '/',
-      search: '',
-      hash: '',
-    },
-    writable: true,
-  });
-}
-
 // Mock URL.createObjectURL for file previews
 if (typeof window !== 'undefined') {
   window.URL.createObjectURL = jest.fn(() => 'mock-url');

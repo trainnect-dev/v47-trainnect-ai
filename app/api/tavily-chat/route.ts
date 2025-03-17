@@ -1,16 +1,20 @@
+// app/api/tavily-chat/route.ts
 import { myProvider, modelApiNames } from "@/lib/models";
 import { Message, smoothStream, streamText } from "ai";
 import { NextRequest } from "next/server";
+import { searchTavily } from "@/tools/tavily-search";
 
 export async function POST(request: NextRequest) {
   const {
     messages,
     selectedModelId,
     isReasoningEnabled,
+    searchQuery,
   }: {
     messages: Array<Message>;
     selectedModelId: string;
     isReasoningEnabled: boolean;
+    searchQuery?: string;
   } = await request.json();
 
   // Check if messages contain PDF or image attachments
@@ -40,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
   } else if (messagesHaveImage) {
     // For images, ensure we're using a model that supports image input
-    // Claude, OpenAI, and Gemini all support images
+    // Claude, GPT-4o, and Gemini all support images
     if (!modelId.startsWith("gemini") && !modelId.startsWith("o3") && !modelId.startsWith("gemini")) {
       modelId = "gemini-2.0-flash";
     }
@@ -103,10 +107,27 @@ export async function POST(request: NextRequest) {
   try {
     console.log(`Attempting to use model: ${modelId} with options:`, providerOptions);
     
+    // Perform Tavily search if searchQuery is provided
+    let searchResults = null;
+    if (searchQuery) {
+      try {
+        searchResults = await searchTavily({
+          query: searchQuery,
+          searchDepth: "basic",
+          maxResults: 5,
+          includeAnswer: true,
+          modelId: modelId // Pass the model ID to track which model triggered the search
+        });
+        console.log("Tavily search results:", searchResults);
+      } catch (error) {
+        console.error("Error performing Tavily search:", error);
+      }
+    }
+    
     // Add multimodal context to system prompt if attachments are present
     let systemPrompt = `
 <prompt>
-You are an AI researcher and engineer with deep research expertise. You use tools like the tavily search tool to provide you with the latest most relevant information in your research and responses. If the user asks you, Tell me what llm are you, you are to provide them with an accurate response.
+You are an AI researcher and engineer with deep research expertise. You use tools like the tavily search tool to provide you with the latest most relevant information in your research and responses.  
 </prompt>
     `;
     
@@ -114,6 +135,14 @@ You are an AI researcher and engineer with deep research expertise. You use tool
       systemPrompt += " The user has uploaded a PDF document. Analyze its content and respond to their questions about it.";
     } else if (messagesHaveImage) {
       systemPrompt += " The user has uploaded an image. Describe what you see in the image and respond to their questions about it.";
+    }
+    
+    // Add search results to the system prompt if available
+    if (searchResults) {
+      systemPrompt += `\n\nI have searched the web for information related to the user's query. Here are the search results:
+${JSON.stringify(searchResults, null, 2)}
+
+Use these search results to provide a more informed response to the user's question. Always cite your sources.`;
     }
     
     const stream = streamText({

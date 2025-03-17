@@ -27,7 +27,7 @@ module.exports = {
     {
       displayName: 'node',
       testEnvironment: 'node',
-      testMatch: ['**/__tests__/**/!(posthog).test.ts'],
+      testMatch: ['**/__tests__/**/*.test.ts'],
       transform: {
         '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './babel.config.test.js' }],
       },
@@ -38,7 +38,7 @@ module.exports = {
     {
       displayName: 'jsdom',
       testEnvironment: 'jsdom',
-      testMatch: ['**/__tests__/**/posthog.test.ts', '**/tests/**/*.test.tsx'],
+      testMatch: ['**/tests/**/*.test.tsx'],
       transform: {
         '^.+\\.(ts|tsx)$': ['babel-jest', { configFile: './babel.config.test.js' }],
       },

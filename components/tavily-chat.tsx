@@ -7,16 +7,18 @@ import { useState, useRef } from "react";
 import { Messages } from "./messages";
 import { models } from "@/lib/models";
 import { Footnote } from "./footnote";
-import { ArrowUpIcon, CheckedSquare, StopIcon, UncheckedSquare, PaperClipIcon, XIcon } from "./icons";
+import { ArrowUpIcon, CheckedSquare, StopIcon, UncheckedSquare, PaperClipIcon, XIcon, SearchIcon } from "./icons";
 import { ModelSelector } from "./model-selector";
 import { Input } from "./input";
 import Image from "next/image";
 
-export function Chat() {
+export function TavilyChat() {
   const [input, setInput] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedModelId, setSelectedModelId] = useState<string>("claude-3.7-sonnet");
   const [isReasoningEnabled, setIsReasoningEnabled] = useState<boolean>(true);
   const [files, setFiles] = useState<FileList | null>(null);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Default values for the following features 
@@ -26,10 +28,12 @@ export function Chat() {
   const selectedModel = models.find((model) => model.id === selectedModelId);
 
   const { messages, append, status, stop } = useChat({
-    id: "primary",
+    id: "tavily-search",
+    api: "/api/tavily-chat",
     body: {
       selectedModelId,
       isReasoningEnabled: reasoningModeEnabled ? isReasoningEnabled : false,
+      searchQuery: isSearching ? input : undefined,
     },
     onError: () => {
       toast.error("An error occurred, please try again!");
@@ -88,10 +92,10 @@ export function Chat() {
       ) : (
         <div className="flex flex-col gap-0.5 sm:text-2xl text-xl md:w-1/2 w-full">
           <div className="flex flex-row gap-2 items-center">
-            <div>Trainnect AI.</div>
+            <div>Trainnect AI with Tavily Search</div>
           </div>
           <div className="dark:text-zinc-500 text-zinc-400">
-            Search Less, Learn More
+            Search Less, Learn More with Web-Enhanced AI
           </div>
         </div>
       )}
@@ -137,8 +141,8 @@ export function Chat() {
             append={append}
           />
 
-          {reasoningModeEnabled && (
-            <div className="absolute bottom-2.5 left-2.5">
+          <div className="absolute bottom-2.5 left-2.5 flex flex-row gap-2">
+            {reasoningModeEnabled && (
               <div
                 className={cn(
                   "relative w-fit text-sm p-1.5 rounded-lg flex flex-row items-center gap-2 dark:hover:bg-zinc-600 hover:bg-zinc-200 cursor-pointer",
@@ -153,8 +157,23 @@ export function Chat() {
                 {isReasoningEnabled ? <CheckedSquare /> : <UncheckedSquare />}
                 <div>Reasoning</div>
               </div>
+            )}
+            
+            <div
+              className={cn(
+                "relative w-fit text-sm p-1.5 rounded-lg flex flex-row items-center gap-2 dark:hover:bg-zinc-600 hover:bg-zinc-200 cursor-pointer",
+                {
+                  "dark:bg-zinc-600 bg-zinc-200": isSearching,
+                },
+              )}
+              onClick={() => {
+                setIsSearching(!isSearching);
+              }}
+            >
+              {isSearching ? <CheckedSquare /> : <UncheckedSquare />}
+              <div>Web Search</div>
             </div>
-          )}
+          </div>
 
           <div className="absolute bottom-2.5 right-2.5 flex flex-row gap-2">
             {multimodalEnabled && (
