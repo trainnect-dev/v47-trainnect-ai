@@ -2,7 +2,8 @@ import { Toaster } from 'sonner';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import type { Metadata } from 'next';
-import { Navigation } from '@/components/navigation';
+import { LayoutDashboard, Search, MessageSquare } from 'lucide-react';
+import { Sidebar, SidebarBody, SidebarLink } from '@/components/sidebar';
 
 import './globals.css';
 
@@ -19,10 +20,40 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body>
-          <Toaster position="top-center" />
-          <Navigation />
-          {children}
+      <body className="min-h-screen">
+        <Toaster position="top-center" />
+        <div className="flex">
+          <Sidebar>
+            <SidebarBody>
+              <div className="flex flex-col gap-2">
+                <SidebarLink
+                  link={{
+                    label: "Dashboard",
+                    href: "/",
+                    icon: <LayoutDashboard size={20} />,
+                  }}
+                />
+                <SidebarLink
+                  link={{
+                    label: "AI Search",
+                    href: "/tavily-ai-search",
+                    icon: <Search size={20} />,
+                  }}
+                />
+                <SidebarLink
+                  link={{
+                    label: "AI Chat",
+                    href: "/",
+                    icon: <MessageSquare size={20} />,
+                  }}
+                />
+              </div>
+            </SidebarBody>
+          </Sidebar>
+          <main className="flex-1 p-4 md:p-8">
+            {children}
+          </main>
+        </div>
       </body>
     </html>
   );
