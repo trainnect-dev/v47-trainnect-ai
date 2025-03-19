@@ -1,6 +1,6 @@
-<a href="https://ai-sdk-reasoning.vercel.app/">
-  <img alt="Next.js 15 and App Router-ready AI chatbot with reasoning." src="app/opengraph-image.png">
-  <h1 align="center">Multi-llM AI Assiatant</h1>
+<a href="https://github.com/mindful-ai-dude">
+<img alt="Agentic AI Multi-LLM Assistant Built With Next.js 15 App Router, React 19, Tavily Search, and Vercel's AI SDK.  Built with love by Gregory Kennedy." src="app/opengraph-image.png">
+  <h1 align="center">Multi-LLM AI Assiatant</h1>
 </a>
 
 <p align="center">
@@ -21,7 +21,7 @@
   - Advanced routing for seamless navigation and performance
   - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
 - [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
+  - Unified API for generating text, structured objects, and tool calls with Multi-LLMs
   - Hooks for building dynamic chat and generative user interfaces
   - Supports multiple LLM providers with a unified interface
 - Supported Models
