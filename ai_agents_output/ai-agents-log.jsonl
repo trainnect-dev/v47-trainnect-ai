@@ -1,0 +1,5 @@
+{"timestamp":"2025-03-17T16:47:18.372Z","query":"What are the latest developments in AI chip manufacturing","primaryModel":"claude-3.7-sonnet","secondaryModel":"o3-mini"}
+{"timestamp":"2025-03-17T16:53:03.324Z","query":"What are the current trends in renewable energy in this year, 2025?  Also please tell me which llm you are?  Are you from Google and Anthropic?  ","primaryModel":"gemini-2.0-flash","secondaryModel":"claude-3.5-sonnet"}
+{"timestamp":"2025-03-17T17:00:36.069Z","query":"What are the latest developments in AI chip manufacturing for the last quarter of 2024, the first quarter of 2025 (today is March 17, 2025) and for the remainder of 2025?","primaryModel":"gemini-2.0-flash","secondaryModel":"claude-3.5-sonnet"}
+{"timestamp":"2025-03-18T05:56:46.385Z","query":"1.  Tell me the latest Jan - March 2025 news for Qwen QWQ 32B open source model  2.  What llm are you?","primaryModel":"qwen-qwq-32b","secondaryModel":"gemini-2.0-flash"}
+{"timestamp":"2025-03-18T05:57:27.709Z","query":"1.  Tell me the latest Jan - March 2025 news for Qwen QWQ 32B open source model  2.  What llm are you?","primaryModel":"claude-3.5-sonnet","secondaryModel":"o3-mini"}
