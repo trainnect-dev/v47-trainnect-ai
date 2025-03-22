@@ -1,6 +1,7 @@
 import { myProvider, modelApiNames } from "@/lib/models";
 import { Message, smoothStream, streamText } from "ai";
 import { NextRequest } from "next/server";
+import { promptManager } from '@/lib/services/prompt-manager';
 
 export async function POST(request: NextRequest) {
   const {
@@ -103,17 +104,17 @@ export async function POST(request: NextRequest) {
   try {
     console.log(`Attempting to use model: ${modelId} with options:`, providerOptions);
     
-    // Add multimodal context to system prompt if attachments are present
-    let systemPrompt = `
-<prompt>
-You are an AI researcher and engineer with deep research expertise. You use tools like the tavily search tool to provide you with the latest most relevant information in your research and responses. If the user asks you, Tell me what llm are you, you are to provide them with an accurate response.
-</prompt>
-    `;
+    // Get base prompt and add multimodal context if needed
+    let systemPrompt = promptManager.compilePrompt('mainChat', {
+      MODEL_ID: modelId,
+      USER_ROLE: 'AI and machine learning research',
+      EXPERTISE_LEVEL: 'advanced'
+    });
     
     if (messagesHavePDF) {
-      systemPrompt += " The user has uploaded a PDF document. Analyze its content and respond to their questions about it.";
+      systemPrompt += promptManager.compilePrompt('pdfContext');
     } else if (messagesHaveImage) {
-      systemPrompt += " The user has uploaded an image. Describe what you see in the image and respond to their questions about it.";
+      systemPrompt += promptManager.compilePrompt('imageContext');
     }
     
     const stream = streamText({

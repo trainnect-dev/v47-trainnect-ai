@@ -30,9 +30,9 @@ export async function searchTavily(params: TavilySearchParams) {
     const response = await client.search(
       params.query,
       {
-        searchDepth: params.searchDepth || "basic",
-        maxResults: params.maxResults || 5,
-        includeAnswer: params.includeAnswer || false,
+        searchDepth: params.searchDepth || "advanced",
+        maxResults: params.maxResults || 10,
+        includeAnswer: params.includeAnswer || true,
         includeRawContent: params.includeRawContent || false,
         includeDomains: params.includeDomains,
         excludeDomains: params.excludeDomains,

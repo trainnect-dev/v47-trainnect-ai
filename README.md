@@ -1,7 +1,9 @@
 <a href="https://github.com/mindful-ai-dude">
 <img alt="Agentic AI Multi-LLM Assistant Built With Next.js 15 App Router, React 19, Tavily Search, and Vercel's AI SDK.  Built with love by Gregory Kennedy." src="app/opengraph-image.png">
-  <h1 align="center">Multi-LLM AI Assiatant</h1>
+  <h1 align="center">Multi-LLM AI Assistant</h1>
 </a>
+
+**Note: v47 wpromptmgr noauth nodb**
 
 <p align="center">
   An Open-Source AI Assistant Built With Next.js 15 App Router, React 19, Multiple LLM Providers, and Vercel's AI SDK.
@@ -62,6 +64,39 @@
         - Individual JSON files: `ai-agents-{timestamp}-{primary-model}-{secondary-model}.json`
         - Summary log: `ai-agents-log.jsonl`
       - Real-time log monitoring: `tail -f ai_agents_output/ai-agents-log.jsonl`
+  - Prompt Management System
+    - Centralized management of system prompts for all features
+    - User interface for editing prompts at `/admin/prompts`
+    - Configurable prompts for:
+      - Main Chat
+      - Tavily Chat
+      - AI Agent Research
+      - AI Agent Processing
+      - PDF Context
+      - Image Context
+    - Support for variables in prompts using `{{VARIABLE_NAME}}` syntax
+    - Environment-based defaults with UI overrides
+    - Tavily Search Settings Configuration:
+      - Include/Exclude Domains: Specify which websites to include or exclude from search results
+      - Search Depth: Choose between "basic" or "advanced" search
+      - Max Results: Control the number of search results (1-20)
+      - Include Answer: Toggle AI-generated answer from search results
+      - Include Raw Content: Toggle full content retrieval from webpages
+    - Settings are automatically applied across:
+      - Tavily Chat Interface
+      - AI Agents Research
+      - Any component using Tavily search
+  - Enhanced Tavily Search Integration
+    - Configurable search parameters through Prompt Management
+    - Domain filtering for more focused results
+    - Adjustable search depth and result count
+    - Optional raw content retrieval
+    - Seamless integration with:
+      - Standalone search interface
+      - AI Agents research process
+      - Chat conversations
+    - Real-time application of search settings
+    - Persistent configuration across sessions
 - [shadcn/ui](https://ui.shadcn.com)
   - Styling with [Tailwind CSS](https://tailwindcss.com)
   - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility

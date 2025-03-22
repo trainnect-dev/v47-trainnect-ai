@@ -9,8 +9,12 @@ import {
   Search,
   MessageSquare,
   Menu,
-  X
+  X,
+  Settings,
+  Moon,
+  Sun
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface SidebarLinkProps {
   label: string;
@@ -79,6 +83,32 @@ export const Sidebar = ({ children, open, setOpen }: SidebarProps) => {
   );
 };
 
+const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <button className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent">
+        <Sun size={16} />
+      </button>
+    );
+  }
+  
+  return (
+    <button
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent"
+    >
+      {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+    </button>
+  );
+};
+
 export const SidebarBody = ({ className, children, ...props }: SidebarBodyProps) => {
   const { open, setOpen, animate } = useSidebar();
 
@@ -99,12 +129,15 @@ export const SidebarBody = ({ className, children, ...props }: SidebarBodyProps)
       >
         <div className="flex items-center justify-between h-12">
           <Logo />
-          <button
-            onClick={() => setOpen(!open)}
-            className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent"
-          >
-            {open ? <X size={16} /> : <Menu size={16} />}
-          </button>
+          <div className="flex gap-1">
+            <ThemeToggle />
+            <button
+              onClick={() => setOpen(!open)}
+              className="h-8 w-8 flex items-center justify-center rounded-md hover:bg-accent"
+            >
+              {open ? <X size={16} /> : <Menu size={16} />}
+            </button>
+          </div>
         </div>
         {children}
       </motion.div>
@@ -165,5 +198,40 @@ export const Logo = () => {
         </motion.span>
       )}
     </Link>
+  );
+};
+
+export const SidebarLinks = () => {
+  return (
+    <div className="flex flex-col gap-1">
+      <SidebarLink
+        link={{
+          label: "Chat",
+          href: "/",
+          icon: <MessageSquare size={16} />,
+        }}
+      />
+      <SidebarLink
+        link={{
+          label: "AI Search",
+          href: "/tavily-ai-search",
+          icon: <Search size={16} />,
+        }}
+      />
+      <SidebarLink
+        link={{
+          label: "AI Agents",
+          href: "/ai-agents",
+          icon: <LayoutDashboard size={16} />,
+        }}
+      />
+      <SidebarLink
+        link={{
+          label: "Prompts",
+          href: "/admin/prompts",
+          icon: <Settings size={16} />,
+        }}
+      />
+    </div>
   );
 };

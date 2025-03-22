@@ -4,6 +4,7 @@ import { getModelInstance } from '@/lib/ai-agents/utils';
 import type { ModelConfig } from '@/lib/ai-agents/types';
 import { searchTavily } from "@/tools/tavily-search";
 import { aiAgentsLogger } from '@/utils/ai-agents-logger';
+import { promptManager } from '@/lib/services/prompt-manager';
 
 export async function POST(req: Request) {
   const { messages, primaryModel, secondaryModel } = await req.json();
@@ -20,17 +21,25 @@ export async function POST(req: Request) {
         // Step 1: Research with primary model and Tavily search
         const result1 = streamText({
           model: getModelInstance(primaryModel as ModelConfig),
-          system: 'You are an expert researcher who uses the Tavily search tool to find relevant information. Provide concise, factual responses based on search results. Maintain context from previous messages when relevant.',
+          system: promptManager.compilePrompt('aiAgent', {
+            SEARCH_DEPTH: 'advanced',
+            RESPONSE_STYLE: 'concise'
+          }),
           messages: [...previousMessages, newMessage], // Include conversation history
           toolChoice: 'required',
           tools: {
             tavily: tool({
               parameters: z.object({ query: z.string() }),
               execute: async ({ query }) => {
+                const tavilyPrompt = promptManager.getPrompt('tavily-chat');
                 const results = await searchTavily({ 
                   query,
-                  searchDepth: "advanced",
-                  includeAnswer: true,
+                  searchDepth: tavilyPrompt?.tavilySettings?.searchDepth || "advanced",
+                  maxResults: tavilyPrompt?.tavilySettings?.maxResults || 5,
+                  includeAnswer: tavilyPrompt?.tavilySettings?.includeAnswer ?? true,
+                  includeRawContent: tavilyPrompt?.tavilySettings?.includeRawContent ?? false,
+                  includeDomains: tavilyPrompt?.tavilySettings?.includeDomains,
+                  excludeDomains: tavilyPrompt?.tavilySettings?.excludeDomains,
                 });
                 return JSON.stringify(results);
               },
@@ -48,7 +57,10 @@ export async function POST(req: Request) {
         // Step 2: Process results with secondary model
         const result2 = streamText({
           model: getModelInstance(secondaryModel as ModelConfig),
-          system: 'You are an expert at analyzing and synthesizing information. Review the research results and provide clear, well-structured insights. Maintain context from the conversation history when relevant.',
+          system: promptManager.compilePrompt('aiAgentProcessor', {
+            ANALYSIS_DEPTH: 'comprehensive',
+            OUTPUT_FORMAT: 'structured'
+          }),
           messages: [
             ...previousMessages,
             {

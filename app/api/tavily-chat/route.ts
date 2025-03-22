@@ -1,8 +1,8 @@
-// app/api/tavily-chat/route.ts
 import { myProvider, modelApiNames } from "@/lib/models";
 import { Message, smoothStream, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { searchTavily } from "@/tools/tavily-search";
+import { promptManager } from '@/lib/services/prompt-manager';
 
 export async function POST(request: NextRequest) {
   const {
@@ -107,15 +107,21 @@ export async function POST(request: NextRequest) {
   try {
     console.log(`Attempting to use model: ${modelId} with options:`, providerOptions);
     
+    // Get the Tavily prompt config and settings
+    const tavilyPrompt = promptManager.getPrompt('tavily-chat');
+    
     // Perform Tavily search if searchQuery is provided
     let searchResults = null;
     if (searchQuery) {
       try {
         searchResults = await searchTavily({
           query: searchQuery,
-          searchDepth: "basic",
-          maxResults: 5,
-          includeAnswer: true,
+          searchDepth: tavilyPrompt?.tavilySettings?.searchDepth || "advanced",
+          maxResults: tavilyPrompt?.tavilySettings?.maxResults || 5,
+          includeAnswer: tavilyPrompt?.tavilySettings?.includeAnswer ?? true,
+          includeRawContent: tavilyPrompt?.tavilySettings?.includeRawContent ?? false,
+          includeDomains: tavilyPrompt?.tavilySettings?.includeDomains,
+          excludeDomains: tavilyPrompt?.tavilySettings?.excludeDomains,
           modelId: modelId // Pass the model ID to track which model triggered the search
         });
         console.log("Tavily search results:", searchResults);
@@ -124,25 +130,16 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Add multimodal context to system prompt if attachments are present
-    let systemPrompt = `
-<prompt>
-You are an AI researcher and engineer with deep research expertise. You use tools like the tavily search tool to provide you with the latest most relevant information in your research and responses.  
-</prompt>
-    `;
+    // Get base prompt with context
+    let systemPrompt = promptManager.compilePrompt('tavilyChat', {
+      SEARCH_RESULTS: searchResults ? JSON.stringify(searchResults, null, 2) : '',
+      SEARCH_DEPTH: 'advanced'
+    });
     
     if (messagesHavePDF) {
-      systemPrompt += " The user has uploaded a PDF document. Analyze its content and respond to their questions about it.";
+      systemPrompt += promptManager.compilePrompt('pdfContext');
     } else if (messagesHaveImage) {
-      systemPrompt += " The user has uploaded an image. Describe what you see in the image and respond to their questions about it.";
-    }
-    
-    // Add search results to the system prompt if available
-    if (searchResults) {
-      systemPrompt += `\n\nI have searched the web for information related to the user's query. Here are the search results:
-${JSON.stringify(searchResults, null, 2)}
-
-Use these search results to provide a more informed response to the user's question. Always cite your sources.`;
+      systemPrompt += promptManager.compilePrompt('imageContext');
     }
     
     const stream = streamText({
