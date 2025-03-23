@@ -183,18 +183,19 @@ export function PromptEditor() {
                       </div>
                       <div>
                         <label className="text-sm font-medium">Max Results</label>
-                        <input
-                          type="number"
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                          value={currentPrompt.tavilySettings.maxResults}
-                          onChange={(e) => {
-                            updateTavilySettings({
-                              maxResults: parseInt(e.target.value)
-                            });
-                          }}
-                          min="1"
-                          max="20"
-                        />
+                                <input
+                                  type="number"
+                                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                  value={currentPrompt.tavilySettings.maxResults !== undefined ? currentPrompt.tavilySettings.maxResults.toString() : ''}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value);
+                                    updateTavilySettings({
+                                      maxResults: isNaN(value) ? undefined : value
+                                    });
+                                  }}
+                                  min="1"
+                                  max="20"
+                                />
                       </div>
                     </div>
                     <div className="flex gap-4">

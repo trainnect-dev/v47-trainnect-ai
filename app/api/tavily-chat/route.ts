@@ -3,6 +3,9 @@ import { Message, smoothStream, streamText } from "ai";
 import { NextRequest } from "next/server";
 import { searchTavily } from "@/tools/tavily-search";
 import { promptManager } from '@/lib/services/prompt-manager';
+import type { Message as DBMessage } from "@/lib/db";
+import { stmts } from "@/lib/db/server";
+import { v4 as uuidv4 } from "uuid";
 
 export async function POST(request: NextRequest) {
   const {
@@ -10,12 +13,37 @@ export async function POST(request: NextRequest) {
     selectedModelId,
     isReasoningEnabled,
     searchQuery,
+    conversationId = uuidv4(),
   }: {
     messages: Array<Message>;
     selectedModelId: string;
     isReasoningEnabled: boolean;
     searchQuery?: string;
+    conversationId?: string;
   } = await request.json();
+
+  // Store incoming user message
+  const userMessage = messages[messages.length - 1];
+  if (userMessage.role === 'user') {
+    const dbMessage: DBMessage = {
+      id: uuidv4(),
+      role: userMessage.role,
+      content: userMessage.content,
+      timestamp: Date.now(),
+      conversation_id: conversationId,
+      chat_type: 'ai-search',
+      metadata: searchQuery ? JSON.stringify({ searchQuery }) : undefined
+    };
+    stmts.insertMessage.run(
+      dbMessage.id,
+      dbMessage.role,
+      dbMessage.content,
+      dbMessage.timestamp,
+      dbMessage.conversation_id,
+      dbMessage.chat_type,
+      dbMessage.metadata
+    );
+  }
 
   // Check if messages contain PDF or image attachments
   const messagesHavePDF = messages.some(message =>
@@ -154,7 +182,7 @@ export async function POST(request: NextRequest) {
       messages,
     });
 
-    return stream.toDataStreamResponse({
+    const response = stream.toDataStreamResponse({
       sendReasoning: true,
       getErrorMessage: (error) => {
         console.error(`Error with model ${modelId}:`, error);
@@ -162,6 +190,37 @@ export async function POST(request: NextRequest) {
         return `An error occurred with ${modelId}: ${errorMessage}. Please try again or select a different model.`;
       },
     });
+
+    // Store assistant's response with search results metadata
+    response.clone().text().then(text => {
+      try {
+        const assistantMessage: DBMessage = {
+          id: uuidv4(),
+          role: 'assistant',
+          content: text,
+          timestamp: Date.now(),
+          conversation_id: conversationId,
+          chat_type: 'ai-search',
+          metadata: searchResults ? JSON.stringify({ 
+            searchQuery,
+            searchResults: searchResults 
+          }) : undefined
+        };
+        stmts.insertMessage.run(
+          assistantMessage.id,
+          assistantMessage.role,
+          assistantMessage.content,
+          assistantMessage.timestamp,
+          assistantMessage.conversation_id,
+          assistantMessage.chat_type,
+          assistantMessage.metadata
+        );
+      } catch (error) {
+        console.error('Failed to store assistant message:', error);
+      }
+    });
+
+    return response;
   } catch (error) {
     console.error(`Failed to stream with model ${modelId}:`, error);
     const errorMessage = error instanceof Error ? error.message : String(error);

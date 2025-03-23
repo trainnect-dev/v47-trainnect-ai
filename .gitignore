@@ -49,3 +49,13 @@ next-env.d.ts
 docs/
 /tavily_output
 tavily_output/
+ai_agents_output
+ai_agents_output/
+
+# database
+/db
+
+# pnpm
+pnpm-lock.yaml
+
+

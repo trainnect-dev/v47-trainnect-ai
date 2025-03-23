@@ -5,7 +5,10 @@ export class PromptManager {
   private variables: Map<string, string>;
 
   constructor() {
-    this.prompts = new Map(Object.entries(DEFAULT_PROMPTS));
+    this.prompts = new Map();
+    Object.values(DEFAULT_PROMPTS).forEach(prompt => {
+      this.prompts.set(prompt.id, prompt);
+    });
     this.variables = new Map();
   }
 

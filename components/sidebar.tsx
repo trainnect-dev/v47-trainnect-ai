@@ -12,7 +12,8 @@ import {
   X,
   Settings,
   Moon,
-  Sun
+  Sun,
+  History
 } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -209,6 +210,13 @@ export const SidebarLinks = () => {
           label: "Chat",
           href: "/",
           icon: <MessageSquare size={16} />,
+        }}
+      />
+      <SidebarLink
+        link={{
+          label: "Chat History",
+          href: "/chat-history",
+          icon: <History size={16} />,
         }}
       />
       <SidebarLink

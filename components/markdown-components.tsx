@@ -3,7 +3,16 @@ import Link from "next/link";
 
 export const markdownComponents: Partial<Components> = {
   p: ({ children }) => <p className="leading-6">{children}</p>,
-  pre: ({ children }) => <>{children}</>,
+  pre: ({ children, className }) => (
+    <pre className="bg-gray-100 dark:bg-zinc-800 rounded-lg p-4 my-2 overflow-x-auto text-sm font-mono">
+      {children}
+    </pre>
+  ),
+  code: ({ children }) => (
+    <code className="bg-gray-100 dark:bg-zinc-800 rounded-md px-1.5 py-0.5 text-sm font-mono">
+      {children}
+    </code>
+  ),
   ol: ({ children, ...props }) => {
     return (
       <ol className="list-decimal list-outside ml-4" {...props}>
@@ -20,7 +29,7 @@ export const markdownComponents: Partial<Components> = {
   },
   ul: ({ children, ...props }) => {
     return (
-      <ul className="list-decimal list-outside ml-4" {...props}>
+      <ul className="list-disc list-outside ml-4" {...props}>
         {children}
       </ul>
     );

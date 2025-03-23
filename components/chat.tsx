@@ -3,7 +3,8 @@
 import cn from "classnames";
 import { toast } from "sonner";
 import { useChat } from "@ai-sdk/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Messages } from "./messages";
 import { models } from "@/lib/models";
 import { Footnote } from "./footnote";
@@ -17,6 +18,7 @@ export function Chat() {
   const [selectedModelId, setSelectedModelId] = useState<string>("claude-3.7-sonnet");
   const [isReasoningEnabled, setIsReasoningEnabled] = useState<boolean>(true);
   const [files, setFiles] = useState<FileList | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Default values for the following features 
@@ -25,16 +27,106 @@ export function Chat() {
 
   const selectedModel = models.find((model) => model.id === selectedModelId);
 
-  const { messages, append, status, stop } = useChat({
-    id: "primary",
+  const searchParams = useSearchParams();
+  const conversationId = searchParams.get('conversation') || undefined;
+
+  const { messages, append, status, stop, setMessages } = useChat({
+    id: conversationId || "primary",
     body: {
       selectedModelId,
       isReasoningEnabled: reasoningModeEnabled ? isReasoningEnabled : false,
+      conversationId,
     },
     onError: () => {
       toast.error("An error occurred, please try again!");
     },
   });
+
+  // Load conversation history without triggering LLM responses
+  useEffect(() => {
+    async function loadHistory() {
+      if (conversationId && messages.length === 0 && !isLoadingHistory) {
+        setIsLoadingHistory(true);
+        try {
+          const response = await fetch(`/api/chat/history/${conversationId}`);
+          const data = await response.json();
+          
+          if (data.messages) {
+            // Transform messages to match expected format with parts array
+            const formattedMessages = data.messages.map((msg: any) => {
+              const messageParts = [];
+              
+              // Add reasoning block if it exists in metadata
+              if (msg.metadata) {
+                try {
+                  const metadata = JSON.parse(msg.metadata);
+                  if (metadata.reasoning) {
+                    messageParts.push({
+                      type: "reasoning",
+                      reasoning: metadata.reasoning,
+                      details: [{ type: "text", text: metadata.reasoning }]
+                    });
+                  }
+                } catch (e) {
+                  console.error('Error parsing message metadata:', e);
+                }
+              }
+              
+              // Try to parse and format JSON content if present
+              const content = msg.content;
+              const isJson = content.trim().startsWith('{') || content.trim().startsWith('[');
+              
+              if (isJson) {
+                try {
+                  const formattedJson = JSON.stringify(JSON.parse(content), null, 2);
+                  messageParts.push({
+                    type: "text",
+                    text: "```json\n" + formattedJson + "\n```"
+                  });
+                } catch (e) {
+                  messageParts.push({
+                    type: "text",
+                    text: content
+                  });
+                }
+              } else {
+                messageParts.push({
+                  type: "text",
+                  text: content
+                });
+              }
+
+              return {
+                id: msg.id,
+                role: msg.role,
+                content: msg.content,
+                parts: messageParts,
+                ...(msg.metadata && {
+                  experimental_attachments: (() => {
+                    try {
+                      const metadata = JSON.parse(msg.metadata);
+                      return metadata.attachments || [];
+                    } catch (e) {
+                      return [];
+                    }
+                  })()
+                })
+              };
+            });
+            
+            setMessages(formattedMessages);
+          }
+        } catch (err) {
+          console.error('Failed to load chat history:', err);
+          toast.error("Failed to load chat history");
+        } finally {
+          setIsLoadingHistory(false);
+        }
+      }
+    }
+    
+    loadHistory();
+  }, [conversationId, messages.length, setMessages, isLoadingHistory]);
 
   const isGeneratingResponse = ["streaming", "submitted"].includes(status);
 
@@ -83,7 +175,11 @@ export function Chat() {
         },
       )}
     >
-      {messages.length > 0 ? (
+      {isLoadingHistory ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      ) : messages.length > 0 ? (
         <Messages messages={messages} status={status} />
       ) : (
         <div className="flex flex-col gap-0.5 sm:text-2xl text-xl md:w-1/2 w-full">
