@@ -20,27 +20,55 @@ export interface TavilySearchParams {
   includeRawContent?: boolean;
   includeDomains?: string[];
   excludeDomains?: string[];
-  modelId?: string; 
+  modelId?: string;
+  topic?: "general" | "news" | "finance";
+  days?: number;
+  maxTokens?: number;
+  timeRange?: "year" | "month" | "week" | "day" | "y" | "m" | "w" | "d" | undefined;
+  chunksPerSource?: number;
 }
 
 export async function searchTavily(params: TavilySearchParams) {
   const client = tavilyClient();
   
+  const defaultOptions: TavilySearchParams = {
+    query: params.query,
+    searchDepth: "advanced",
+    maxResults: 10,
+    includeAnswer: true,
+    includeRawContent: false,
+    includeDomains: [],
+    excludeDomains: [],
+    modelId: params.modelId,
+    topic: "general",
+    days: 3,
+    maxTokens: undefined,
+    timeRange: undefined,
+    chunksPerSource: undefined
+  };
+
+  const mergedOptions = { ...defaultOptions, ...params };
+  
   try {
     const response = await client.search(
-      params.query,
+      mergedOptions.query,
       {
-        searchDepth: params.searchDepth || "advanced",
-        maxResults: params.maxResults || 10,
-        includeAnswer: params.includeAnswer || true,
-        includeRawContent: params.includeRawContent || false,
-        includeDomains: params.includeDomains,
-        excludeDomains: params.excludeDomains,
+        searchDepth: mergedOptions.searchDepth,
+        maxResults: mergedOptions.maxResults,
+        includeAnswer: mergedOptions.includeAnswer,
+        includeRawContent: mergedOptions.includeRawContent,
+        includeDomains: mergedOptions.includeDomains,
+        excludeDomains: mergedOptions.excludeDomains,
+        topic: mergedOptions.topic,
+        days: mergedOptions.days,
+        maxTokens: mergedOptions.maxTokens,
+        timeRange: mergedOptions.timeRange,
+        chunksPerSource: mergedOptions.chunksPerSource,
       }
     );
     
-    tavilyLogger.logSearchResults(params.query, response, params.modelId);
-    tavilyLogger.appendToConsolidatedLog(params.query, response, params.modelId);
+    tavilyLogger.logSearchResults(mergedOptions.query, response, mergedOptions.modelId);
+    tavilyLogger.appendToConsolidatedLog(mergedOptions.query, response, mergedOptions.modelId);
     
     return response;
   } catch (error) {

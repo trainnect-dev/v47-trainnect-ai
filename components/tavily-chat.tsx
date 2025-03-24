@@ -7,7 +7,7 @@ import { useState, useRef } from "react";
 import { Messages } from "./messages";
 import { models } from "@/lib/models";
 import { Footnote } from "./footnote";
-import { ArrowUpIcon, CheckedSquare, StopIcon, UncheckedSquare, PaperClipIcon, XIcon, SearchIcon } from "./icons";
+import { ArrowUpIcon, CheckedSquare, StopIcon, UncheckedSquare, PaperClipIcon, XIcon, SearchIcon, PlusIcon } from "./icons";
 import { ModelSelector } from "./model-selector";
 import { Input } from "./input";
 import Image from "next/image";
@@ -27,7 +27,7 @@ export function TavilyChat() {
 
   const selectedModel = models.find((model) => model.id === selectedModelId);
 
-  const { messages, append, status, stop } = useChat({
+  const { messages, append, status, stop, setMessages } = useChat({
     id: "tavily-search",
     api: "/api/tavily-chat",
     body: {
@@ -77,6 +77,16 @@ export function TavilyChat() {
     ? URL.createObjectURL(files[0]) 
     : null;
 
+  // Function to start a new chat
+  const handleNewChat = () => {
+    setMessages([]);
+    setInput("");
+    setFiles(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -88,7 +98,20 @@ export function TavilyChat() {
       )}
     >
       {messages.length > 0 ? (
-        <Messages messages={messages} status={status} />
+        <div className="w-full relative">
+          <div className="absolute right-4 top-0 z-10">
+            <button
+              onClick={handleNewChat}
+              className="p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1"
+              title="New Chat"
+              aria-label="Start a new chat"
+            >
+              <PlusIcon size={18} />
+              <span className="sr-only">New Chat</span>
+            </button>
+          </div>
+          <Messages messages={messages} status={status} />
+        </div>
       ) : (
         <div className="flex flex-col gap-0.5 sm:text-2xl text-xl md:w-1/2 w-full">
           <div className="flex flex-row gap-2 items-center">

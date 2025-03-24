@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         // Step 1: Research with primary model and Tavily search
         const result1 = streamText({
           model: getModelInstance(primaryModel as ModelConfig),
-          system: promptManager.compilePrompt('aiAgent', {
+          system: promptManager.compilePrompt('ai-agent', {
             SEARCH_DEPTH: 'advanced',
             RESPONSE_STYLE: 'concise'
           }),
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
         // Step 2: Process results with secondary model
         const result2 = streamText({
           model: getModelInstance(secondaryModel as ModelConfig),
-          system: promptManager.compilePrompt('aiAgentProcessor', {
+          system: promptManager.compilePrompt('ai-agent-processor', {
             ANALYSIS_DEPTH: 'comprehensive',
             OUTPUT_FORMAT: 'structured'
           }),

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { ModelConfig, AVAILABLE_MODELS } from '@/lib/ai-agents/types';
 import { cn } from '@/lib/utils';
 import type { Message } from 'ai';
+import { CopyIcon, CheckIcon, PlusIcon } from '@/components/icons';
 
 interface ToolCall {
   id: string;
@@ -58,14 +59,40 @@ function ModelSelect({
 export function AgentChat({ className }: AgentChatProps) {
   const [primaryModel, setPrimaryModel] = useState<ModelConfig>(AVAILABLE_MODELS[0]);
   const [secondaryModel, setSecondaryModel] = useState<ModelConfig>(AVAILABLE_MODELS[1]);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: '/api/ai-agents',
     body: {
       primaryModel,
       secondaryModel,
     },
   });
+
+  // Reset copied state after 2 seconds
+  useEffect(() => {
+    if (copiedMessageId) {
+      const timer = setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copiedMessageId]);
+
+  // Function to copy message content to clipboard
+  const copyToClipboard = async (message: Message) => {
+    try {
+      await navigator.clipboard.writeText(message.content);
+      setCopiedMessageId(message.id);
+    } catch (error) {
+      console.error("Failed to copy text: ", error);
+    }
+  };
+
+  // Function to start a new chat
+  const handleNewChat = () => {
+    setMessages([]);
+  };
 
   return (
     <div className={cn('flex flex-col h-[calc(100vh-12rem)]', className)}>
@@ -82,7 +109,20 @@ export function AgentChat({ className }: AgentChatProps) {
         />
       </div>
 
-      <div className="flex-1 overflow-auto border rounded-md p-4 mb-4">
+      <div className="flex-1 overflow-auto border rounded-md p-4 mb-4 relative">
+        {messages.length > 0 && (
+          <div className="absolute right-4 top-4 z-10">
+            <button
+              onClick={handleNewChat}
+              className="p-2 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors flex items-center gap-1"
+              title="New Chat"
+              aria-label="Start a new chat"
+            >
+              <PlusIcon size={18} />
+              <span className="sr-only">New Chat</span>
+            </button>
+          </div>
+        )}
         {messages.map((message) => {
           const extendedMessage = message as ExtendedMessage;
           return (
@@ -94,7 +134,7 @@ export function AgentChat({ className }: AgentChatProps) {
               )}
             >
               <div className="font-medium mb-1">
-                {message.role === 'user' ? 'You' : 'Assistant'}:
+                <span>{message.role === 'user' ? 'You' : 'Assistant'}</span>
               </div>
               <div className="whitespace-pre-wrap">
                 {message.content}
@@ -107,6 +147,30 @@ export function AgentChat({ className }: AgentChatProps) {
                   </div>
                 ))}
               </div>
+              
+              {/* Copy button for assistant messages - positioned at bottom left */}
+              {message.role === 'assistant' && (
+                <div className="mt-2">
+                  <button
+                    onClick={() => copyToClipboard(message)}
+                    className="flex items-center gap-1 text-sm p-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                    aria-label="Copy to clipboard"
+                    title="Copy to clipboard"
+                  >
+                    {copiedMessageId === message.id ? (
+                      <>
+                        <CheckIcon className="text-green-500" />
+                        <span className="text-green-500">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <CopyIcon />
+                        <span>Copy to clipboard</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}

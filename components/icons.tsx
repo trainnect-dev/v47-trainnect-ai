@@ -213,7 +213,7 @@ export const PaperClipIcon = ({ size = 16, className = "" }: { size?: number, cl
       <path
         fillRule="evenodd"
         clipRule="evenodd"
-        d="M8 1.5a.5.5 0 01.5.5v4.793l1.146-1.147a.5.5 0 01.708.708l-2 2a.5.5 0 01-.708 0l-2-2a.5.5 0 11.708-.708L7.5 6.793V2a.5.5 0 01.5-.5zM4 9.5a.5.5 0 00-1 0v2A2.5 2.5 0 005.5 14h5a2.5 2.5 0 002.5-2.5v-2a.5.5 0 00-1 0v2a1.5 1.5 0 01-1.5 1.5h-5A1.5 1.5 0 014 11.5v-2z"
+        d="M4 2C4 1.44772 4.44772 1 5 1H13C13.5523 1 14 1.44772 14 2V10C14 10.5523 13.5523 11 13 11H11V13C11 13.5523 10.5523 14 10 14H2C1.44772 14 1 13.5523 1 13V5C1 4.44772 1.44772 4 2 4H4V2ZM4 5.5V10C4 10.5523 4.44772 11 5 11H9.5V12.5H2.5V5.5H4ZM5.5 2.5V9.5H12.5V2.5H5.5Z"
         fill="currentColor"
       />
     </svg>
@@ -258,3 +258,60 @@ export function SearchIcon({ size = 16, className = "" }: { size?: number, class
     </svg>
   );
 }
+
+export const CopyIcon = ({ size = 16, className = "" }: { size?: number, className?: string }) => {
+  return (
+    <svg
+      height={size}
+      width={size}
+      viewBox="0 0 16 16"
+      className={className}
+      style={{ color: "currentcolor" }}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M4 2C4 1.44772 4.44772 1 5 1H13C13.5523 1 14 1.44772 14 2V10C14 10.5523 13.5523 11 13 11H11V13C11 13.5523 10.5523 14 10 14H2C1.44772 14 1 13.5523 1 13V5C1 4.44772 1.44772 4 2 4H4V2ZM4 5.5V10C4 10.5523 4.44772 11 5 11H9.5V12.5H2.5V5.5H4ZM5.5 2.5V9.5H12.5V2.5H5.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const CheckIcon = ({ size = 16, className = "" }: { size?: number, className?: string }) => {
+  return (
+    <svg
+      height={size}
+      width={size}
+      viewBox="0 0 16 16"
+      className={className}
+      style={{ color: "currentcolor" }}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 0 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};
+
+export const PlusIcon = ({ size = 16, className = "" }: { size?: number, className?: string }) => {
+  return (
+    <svg
+      height={size}
+      width={size}
+      viewBox="0 0 16 16"
+      className={className}
+      style={{ color: "currentcolor" }}
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 2.5C8.41421 2.5 8.75 2.83579 8.75 3.25V7.25H12.75C13.1642 7.25 13.5 7.58579 13.5 8C13.5 8.41421 13.1642 8.75 12.75 8.75H8.75V12.75C8.75 13.1642 8.41421 13.5 8 13.5C7.58579 13.5 7.25 13.1642 7.25 12.75V8.75H3.25C2.83579 8.75 2.5 8.41421 2.5 8C2.5 7.58579 2.83579 7.25 3.25 7.25H7.25V3.25C7.25 2.83579 7.58579 2.5 8 2.5Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+};

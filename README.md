@@ -91,6 +91,12 @@
     - Domain filtering for more focused results
     - Adjustable search depth and result count
     - Optional raw content retrieval
+    - Advanced search parameters:
+      - Topic filtering: Focus search on specific topics
+      - Time range control: Limit results by recency (days parameter)
+      - Token limits: Control response size with maxTokens parameter
+      - Content chunking: Adjust chunksPerSource for better context extraction
+    - Environment variable configuration via .env.local
     - Seamless integration with:
       - Standalone search interface
       - AI Agents research process
@@ -192,3 +198,5 @@ rm -rf node_modules && pnpm store prune && pnpm install && pnpm dev
 
 ```bash
 pkill -f "npm"
+
+```

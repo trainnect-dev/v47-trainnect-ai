@@ -10,7 +10,7 @@ import { perplexity } from '@ai-sdk/perplexity';
 export const myProvider = customProvider({
   languageModels: {
     "claude-3.7-sonnet": anthropic("claude-3-7-sonnet-20250219"),
-    "claude-3.5-sonnet": anthropic("claude-3-5-sonnet-latest"),
+    "claude-3.5-haiku": anthropic("claude-3-5-haiku-latest"),
     "o3-mini": openai("o3-mini"),
     "gemini-2.0-flash": google("gemini-2.0-flash"),
     "qwen-qwq-32b": groq("qwen-qwq-32b"),
@@ -23,7 +23,7 @@ export const myProvider = customProvider({
 // Map of model IDs to their actual API model names
 export const modelApiNames: Record<string, string> = {
   "claude-3.7-sonnet": "claude-3-7-sonnet-20250219",
-  "claude-3.5-sonnet": "claude-3-5-sonnet-latest",
+  "claude-3.5-haiku": "claude-3-5-haiku-latest",
   "o3-mini": "o3-mini",
   "gemini-2.0-flash": "gemini-2.0-flash",
   "qwen-qwq-32b": "qwen-qwq-32b",
@@ -46,10 +46,10 @@ export const models: Array<Model> = [
       "Claude 3.7 Sonnet is Anthropic's most intelligent model to date and the first Claude model to offer extended thinking – the ability to solve complex problems with careful, step-by-step reasoning.",
   },
   {
-    id: "claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnet",
+    id: "claude-3.5-haiku",
+    name: "Claude 3.5 Haiku",
     description:
-      "Claude 3.5 Sonnet strikes the ideal balance between intelligence and speed—particularly for enterprise workloads.",
+      "Claude 3.5 Haiku strikes the ideal balance between intelligence and speed—particularly for enterprise workloads.",
   },
   {
     id: "o3-mini",

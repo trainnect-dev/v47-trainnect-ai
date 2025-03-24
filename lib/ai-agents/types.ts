@@ -17,8 +17,8 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
   },
   {
     provider: 'anthropic',
-    model: 'claude-3.5-sonnet',
-    label: 'Claude 3.5 Sonnet',
+    model: 'claude-3.5-haiku',
+    label: 'Claude 3.5 Haiku',
   },
   {
     provider: 'openai',

@@ -5,7 +5,7 @@ import Markdown from "react-markdown";
 import { markdownComponents } from "./markdown-components";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDownIcon, ChevronUpIcon, SpinnerIcon } from "./icons";
+import { ChevronDownIcon, ChevronUpIcon, SpinnerIcon, CopyIcon, CheckIcon } from "./icons";
 import { UIMessage } from "ai";
 import { UseChatHelpers } from "@ai-sdk/react";
 import Image from "next/image";
@@ -164,12 +164,49 @@ interface MessagesProps {
 export function Messages({ messages, status }: MessagesProps) {
   const messagesRef = useRef<HTMLDivElement>(null);
   const messagesLength = useMemo(() => messages.length, [messages]);
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (messagesRef.current) {
       messagesRef.current.scrollTop = messagesRef.current.scrollHeight;
     }
   }, [messagesLength]);
+
+  // Reset copied state after 2 seconds
+  useEffect(() => {
+    if (copiedMessageId) {
+      const timer = setTimeout(() => {
+        setCopiedMessageId(null);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copiedMessageId]);
+
+  // Function to copy message content to clipboard
+  const copyToClipboard = async (message: UIMessage) => {
+    try {
+      // Extract text content from all parts
+      const textContent = message.parts
+        .map(part => {
+          if (part.type === "text") {
+            return part.text;
+          } else if (part.type === "reasoning" && part.details) {
+            return part.details
+              .filter(detail => detail.type === "text")
+              .map(detail => detail.text)
+              .join("\n");
+          }
+          return "";
+        })
+        .filter(Boolean)
+        .join("\n\n");
+
+      await navigator.clipboard.writeText(textContent);
+      setCopiedMessageId(message.id);
+    } catch (error) {
+      console.error("Failed to copy text: ", error);
+    }
+  };
 
   return (
     <div
@@ -184,7 +221,7 @@ export function Messages({ messages, status }: MessagesProps) {
           )}
         >
           <div
-            className={cn("flex flex-col gap-4", {
+            className={cn("flex flex-col gap-4 relative", {
               "dark:bg-zinc-800 bg-zinc-200 p-2 rounded-xl w-fit ml-auto":
                 message.role === "user",
               "": message.role === "assistant",
@@ -237,6 +274,30 @@ export function Messages({ messages, status }: MessagesProps) {
                   }
                   return null;
                 })}
+              </div>
+            )}
+            
+            {/* Copy button for assistant messages - positioned at bottom left */}
+            {message.role === "assistant" && message.parts.length > 0 && (
+              <div className="mt-2">
+                <button
+                  onClick={() => copyToClipboard(message)}
+                  className="flex items-center gap-1 text-sm p-1.5 rounded-md hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                  aria-label="Copy to clipboard"
+                  title="Copy to clipboard"
+                >
+                  {copiedMessageId === message.id ? (
+                    <>
+                      <CheckIcon className="text-green-500" />
+                      <span className="text-green-500">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <CopyIcon />
+                      <span>Copy to clipboard</span>
+                    </>
+                  )}
+                </button>
               </div>
             )}
           </div>

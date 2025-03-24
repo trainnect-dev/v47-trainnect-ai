@@ -132,16 +132,16 @@ export async function POST(request: NextRequest) {
     console.log(`Attempting to use model: ${modelId} with options:`, providerOptions);
     
     // Get base prompt and add multimodal context if needed
-    let systemPrompt = promptManager.compilePrompt('mainChat', {
+    let systemPrompt = promptManager.compilePrompt('main-chat', {
       MODEL_ID: modelId,
       USER_ROLE: 'AI and machine learning research',
       EXPERTISE_LEVEL: 'advanced'
     });
     
     if (messagesHavePDF) {
-      systemPrompt += promptManager.compilePrompt('pdfContext');
+      systemPrompt += promptManager.compilePrompt('pdf-context');
     } else if (messagesHaveImage) {
-      systemPrompt += promptManager.compilePrompt('imageContext');
+      systemPrompt += promptManager.compilePrompt('image-context');
     }
     
     const stream = streamText({

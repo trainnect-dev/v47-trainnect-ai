@@ -142,6 +142,22 @@ export async function POST(request: NextRequest) {
     let searchResults = null;
     if (searchQuery) {
       try {
+        // Get the topic with proper type checking
+        let topic: "general" | "news" | "finance" | undefined = "general";
+        if (tavilyPrompt?.tavilySettings?.topic) {
+          if (["general", "news", "finance"].includes(tavilyPrompt.tavilySettings.topic as string)) {
+            topic = tavilyPrompt.tavilySettings.topic;
+          }
+        }
+        
+        // Get the timeRange with proper type checking
+        let timeRange: "year" | "month" | "week" | "day" | "y" | "m" | "w" | "d" | undefined = undefined;
+        if (tavilyPrompt?.tavilySettings?.timeRange) {
+          if (["year", "month", "week", "day", "y", "m", "w", "d"].includes(tavilyPrompt.tavilySettings.timeRange as string)) {
+            timeRange = tavilyPrompt.tavilySettings.timeRange;
+          }
+        }
+        
         searchResults = await searchTavily({
           query: searchQuery,
           searchDepth: tavilyPrompt?.tavilySettings?.searchDepth || "advanced",
@@ -150,6 +166,11 @@ export async function POST(request: NextRequest) {
           includeRawContent: tavilyPrompt?.tavilySettings?.includeRawContent ?? false,
           includeDomains: tavilyPrompt?.tavilySettings?.includeDomains,
           excludeDomains: tavilyPrompt?.tavilySettings?.excludeDomains,
+          topic: topic,
+          days: tavilyPrompt?.tavilySettings?.days || 3,
+          maxTokens: tavilyPrompt?.tavilySettings?.maxTokens,
+          timeRange: timeRange,
+          chunksPerSource: tavilyPrompt?.tavilySettings?.chunksPerSource,
           modelId: modelId // Pass the model ID to track which model triggered the search
         });
         console.log("Tavily search results:", searchResults);
@@ -159,15 +180,15 @@ export async function POST(request: NextRequest) {
     }
     
     // Get base prompt with context
-    let systemPrompt = promptManager.compilePrompt('tavilyChat', {
+    let systemPrompt = promptManager.compilePrompt('tavily-chat', {
       SEARCH_RESULTS: searchResults ? JSON.stringify(searchResults, null, 2) : '',
       SEARCH_DEPTH: 'advanced'
     });
     
     if (messagesHavePDF) {
-      systemPrompt += promptManager.compilePrompt('pdfContext');
+      systemPrompt += promptManager.compilePrompt('pdf-context');
     } else if (messagesHaveImage) {
-      systemPrompt += promptManager.compilePrompt('imageContext');
+      systemPrompt += promptManager.compilePrompt('image-context');
     }
     
     const stream = streamText({
