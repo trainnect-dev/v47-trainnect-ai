@@ -1,0 +1,27 @@
+{
+  "name": "Trainnect AI Development",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "bradlc.vscode-tailwindcss"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "containerEnv": {
+    "PNPM_HOME": "/usr/local/share/pnpm",
+    "PATH": "${PNPM_HOME}:${PATH}"
+  },
+  "postCreateCommand": "apt-get update && apt-get install -y sqlite3 libsqlite3-dev python3 build-essential && npm install -g pnpm@10.4.0 && pnpm install",
+  "remoteUser": "node"
+}
