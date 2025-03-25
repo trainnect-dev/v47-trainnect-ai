@@ -46,7 +46,7 @@ export const models: Array<Model> = [
       "Claude 3.7 Sonnet is Anthropic's most intelligent model to date and the first Claude model to offer extended thinking – the ability to solve complex problems with careful, step-by-step reasoning.",
   },
   {
-    id: "claude-3.5-haiku",
+    id: "claude-3.5-haiku-latest",
     name: "Claude 3.5 Haiku",
     description:
       "Claude 3.5 Haiku strikes the ideal balance between intelligence and speed—particularly for enterprise workloads.",

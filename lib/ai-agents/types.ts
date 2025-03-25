@@ -17,7 +17,7 @@ export const AVAILABLE_MODELS: ModelConfig[] = [
   },
   {
     provider: 'anthropic',
-    model: 'claude-3.5-haiku',
+    model: 'claude-3.5-haiku-latest',
     label: 'Claude 3.5 Haiku',
   },
   {

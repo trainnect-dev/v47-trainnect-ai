@@ -48,10 +48,12 @@ export async function POST(req: Request) {
         // Step 1: Research with primary model and Tavily search
         const result1 = streamText({
           model: getModelInstance(primaryModel as ModelConfig),
-          system: promptManager.compilePrompt('ai-agent', {
-            SEARCH_DEPTH: 'advanced',
-            RESPONSE_STYLE: 'concise'
-          }),
+          system: newMessage && /(?:corporate training|fortune 500|major corporation)/i.test(newMessage.content)
+            ? promptManager.compilePrompt('technical-course-creator')
+            : promptManager.compilePrompt('ai-agent', {
+                SEARCH_DEPTH: 'advanced',
+                RESPONSE_STYLE: 'comprehensive'
+              }),
           messages: [...previousMessages, newMessage], // Include conversation history
           toolChoice: 'required',
           tools: {

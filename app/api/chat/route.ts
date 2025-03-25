@@ -57,8 +57,8 @@ export async function POST(request: NextRequest) {
   // Configure provider-specific options based on the selected model
   const providerOptions: Record<string, any> = {};
   
-  // Default to Claude 3.7 Sonnet if no model is selected
-  let modelId = selectedModelId || "claude-3.7-sonnet";
+  // Default to Claude 3.5 Haiku if no model is selected
+  let modelId = selectedModelId || "claude-3.5-haiku-latest";
   
   // Override model selection for multimodal content if needed
   if (messagesHavePDF) {
@@ -134,9 +134,13 @@ export async function POST(request: NextRequest) {
     // Get base prompt and add multimodal context if needed
     let systemPrompt = promptManager.compilePrompt('main-chat', {
       MODEL_ID: modelId,
-      USER_ROLE: 'AI and machine learning research',
+      USER_ROLE: 'Technical proposal, outline or full course creator for Fortune 500 corporations',
       EXPERTISE_LEVEL: 'advanced'
     });
+
+    if (userMessage && /(?:corporate training|fortune 500|major corporation)/i.test(userMessage.content)) {
+      systemPrompt = promptManager.compilePrompt('technical-course-creator');
+    };
     
     if (messagesHavePDF) {
       systemPrompt += promptManager.compilePrompt('pdf-context');

@@ -14,7 +14,7 @@ The system uses our carefully tested and selected models:
 
 - Anthropic
   - Claude 3.7 Sonnet
-  - Claude 3.5 Sonnet
+  - Claude 3.5 Haiku
 - OpenAI
   - O3 Mini
 - Google

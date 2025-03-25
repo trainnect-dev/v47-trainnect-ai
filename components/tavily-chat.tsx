@@ -15,7 +15,7 @@ import Image from "next/image";
 export function TavilyChat() {
   const [input, setInput] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedModelId, setSelectedModelId] = useState<string>("claude-3.7-sonnet");
+  const [selectedModelId, setSelectedModelId] = useState<string>("claude-3.5-haiku-latest");
   const [isReasoningEnabled, setIsReasoningEnabled] = useState<boolean>(true);
   const [files, setFiles] = useState<FileList | null>(null);
   const [isSearching, setIsSearching] = useState<boolean>(false);

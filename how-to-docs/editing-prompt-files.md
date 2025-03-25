@@ -1,4 +1,5 @@
 ## Editing v47 Prompt Files
+
 ## There are several system prompts that can be modified across different files. Here are the main locations:
 
 1. Main Chat System Prompt:
